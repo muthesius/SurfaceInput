@@ -1,9 +1,10 @@
 /**
- * VVVV Plugin to directly access the data of any "contacts" on a Microsoft Surface 1.0
+ * VVVV Plugin to directly access the data of any "touches" on a Microsoft Surface 2.0
  * 
  * Licensed under the MIT License:
  *
  * Copyright (c) 2010-2011 jens alexander ewald, chris engler, muthesius kunsthochschule kiel
+ * V 0.2 - 6/2013 by björn schwarzer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +30,6 @@
 using System;
 using System.ComponentModel.Composition;
 
-//using VVVV.PluginInterfaces.V1;
 using VVVV.PluginInterfaces.V2;
 
 using Microsoft.Surface;
@@ -47,12 +47,11 @@ namespace VVVV.Nodes
 	#region PluginInfo
 	[PluginInfo(Name = "SurfaceInput",
 	            Category = "Input",
-	            Version = "0.1",
+	            Version = "0.2",
 	            Help = "Gives you the data of Surface Contacts. Only use with Surfacetable or Simulator",
 	            Tags = "")]
 	#endregion PluginInfo
 	
-	// DXTextureOutPluginBase,
 	public class SurfaceInput : IDisposable, IPluginEvaluate
 	{
 		#region fields & pins
@@ -82,28 +81,17 @@ namespace VVVV.Nodes
 		[Output("contactRotation")]
 		ISpread<double> contactRotation;
 		
-//		// Tags
-//		[Output("tagCoords")]
-//		ISpread<Vector2D> tagCoords;
-//		
-//		[Output("tagRotation")]
-//		ISpread<double> tagRotation;
-		
-		[Import()]
-		ILogger FLogger;
 		#endregion fields & pins
 		
 
 		#region SurfaceCredentials
+		
 		// We need a "Window" ivar for this to work.
 		private static Form Window = null;
-		public static ContactTarget contactTarget = null;
+		public static TouchTarget touchTarget = null;
 		
-		// no use of the raw image so far
-		//private bool bHasImage = false;
-		
-
-		public static Mutex imageBufferMutex;
+		private double ScreenWidth;
+        private double ScreenHeight;
 		
 		private static void makeWindow() {
 			if (Window != null) return; // simply return, if we did this already
@@ -131,27 +119,19 @@ namespace VVVV.Nodes
 			//System.Diagnostics.Debug.Assert(contactTarget == null,
 			//                                "Surface input already initialized");
 			
-			if (contactTarget != null)
+			if (touchTarget != null)
 				return;
 
 			// Create a target for surface input.
 			// Use an IntPtr.Zero as the handle, but still have a Window(!!) as an ivar
 			// to get contacts globaly.
-			contactTarget = new ContactTarget(IntPtr.Zero,EventThreadChoice.OnCurrentThread,true);
+			touchTarget = new TouchTarget(IntPtr.Zero,EventThreadChoice.OnCurrentThread,true);
+			
 			
 			// Enable the Surface input on this target:
-			//bHasImage = contactTarget.EnableImage(ImageType.Normalized);
-			//if (bHasImage) contactTarget.FrameReceived += new EventHandler<FrameReceivedEventArgs>(contactTarget_FrameReceived);
-			
-			contactTarget.EnableInput();
+			touchTarget.EnableInput();
 		}
 		
-		public static object syncObj = new Object();
-		private static bool bImageUpated = false;
-		void contactTarget_FrameReceived(object sender, FrameReceivedEventArgs e)
-		{
-		}
-
 		#endregion SurfaceCredentials
 		
 		#region Constructor
@@ -164,10 +144,19 @@ namespace VVVV.Nodes
 		{
 			makeWindow();
 			InitializeSurfaceInput();
+			
+			ScreenWidth = InteractiveSurface.PrimarySurfaceDevice.Width;
+            ScreenHeight = InteractiveSurface.PrimarySurfaceDevice.Height;
 		}
 
 		public void Dispose() {
 			if (Window!=null) Window.Dispose();
+			
+			if (touchTarget != null)
+                {
+                    touchTarget.Dispose();
+                    touchTarget = null;
+                }
 		}
 		
 		#endregion Constructor
@@ -179,24 +168,24 @@ namespace VVVV.Nodes
 			
 			// Get the current state of our contacts.
 			// Nice, this seems to be a threadsafe read.
-			ReadOnlyContactCollection contacts = contactTarget.GetState();
+			ReadOnlyTouchPointCollection contacts = touchTarget.GetState();
 			
 			IDout.SliceCount = contactSize.SliceCount = contactRotation.SliceCount
 				= contactCoord.SliceCount = contacts.Count;
 			
 			int i = 0;
-			foreach (Contact c in contacts)
+			foreach (TouchPoint c in contacts)
 			{
 				IDout[i] = c.Id;
 				
 				Vector2D pos = new Vector2D(c.X,c.Y);
-				pos.x = (bNormalizeValues[0]) ? pos.x/512-1	 : pos.x;
-				pos.y = (bNormalizeValues[0]) ? (2-pos.y/384)-1 : pos.y;
+				pos.x = (bNormalizeValues[0]) ? pos.x/(ScreenWidth/2)-1	 : pos.x;
+				pos.y = (bNormalizeValues[0]) ? (2-pos.y/(ScreenHeight/2))-1 : pos.y;
 				
 				double rotation = 1-c.Orientation/(2*Math.PI);
 				
-				contactSize[i] = new Vector2D(c.Bounds.Width/1024.0,
-					                              c.Bounds.Height/768.0);
+				contactSize[i] = new Vector2D(c.Bounds.Width/ScreenWidth,
+					                              c.Bounds.Height/ScreenHeight);
 				contactCoord[i] = pos;
 				contactRotation[i] = rotation;
 				i++;
