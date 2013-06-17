@@ -1,23 +1,7 @@
-<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45beta25.1.dtd" >
-   <PATCH nodename="SurfaceInput (Input 0.1) help.v4p" filename="Surfacetester.v4p" systemname="Surfacetester">
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45alpha29.5.dtd" >
+   <PATCH nodename="X:\SurfaceInput\SurfaceInput (Input 0.2) help.v4p" filename="Surfacetester.v4p" systemname="Surfacetester">
    <BOUNDS height="5730" left="0" top="0" type="Window" width="7845">
    </BOUNDS>
-   <NODE componentmode="Hidden" filename="%VVVV%\plugins\Surface\bin\Debug\SurfaceInput.dll" id="0" nodename="SurfaceInput (Input 0.1)" systemname="SurfaceInput (Input 0.1)">
-   <BOUNDS height="270" left="465" top="630" type="Node" width="4890">
-   </BOUNDS>
-   <PIN pinname="contactCoordsXY" visible="1">
-   </PIN>
-   <PIN pinname="ID" visible="1">
-   </PIN>
-   <PIN pinname="contactSizeXY" visible="1">
-   </PIN>
-   <PIN pinname="contactRotation" visible="1">
-   </PIN>
-   <PIN pinname="tagCoordsXY" visible="1">
-   </PIN>
-   <PIN pinname="tagRotation" visible="1">
-   </PIN>
-   </NODE>
    <NODE systemname="Transform (Transform 2d)" nodename="Transform (Transform 2d)" componentmode="Hidden" id="1">
    <BOUNDS type="Node" left="1425" top="2250" width="5505" height="270">
    </BOUNDS>
@@ -29,7 +13,7 @@
    </PIN>
    <PIN pinname="ScaleY" visible="1">
    </PIN>
-   <PIN pinname="Rotate" visible="1">
+   <PIN pinname="Rotate" visible="1" slicecount="1" values="0">
    </PIN>
    <PIN pinname="Transform Out" visible="1">
    </PIN>
@@ -41,7 +25,7 @@
    </PIN>
    <PIN pinname="Y" visible="1">
    </PIN>
-   <PIN pinname="XY" visible="1">
+   <PIN pinname="XY" visible="1" slicecount="2" values="0,0">
    </PIN>
    </NODE>
    <NODE systemname="Vector (2d Split)" nodename="Vector (2d Split)" componentmode="Hidden" id="3">
@@ -51,7 +35,7 @@
    </PIN>
    <PIN pinname="Y" visible="1">
    </PIN>
-   <PIN pinname="XY" visible="1">
+   <PIN pinname="XY" visible="1" slicecount="2" values="0,0">
    </PIN>
    </NODE>
    <LINK srcnodeid="2" srcpinname="X" dstnodeid="1" dstpinname="TranslateX" linkstyle="VHV">
@@ -78,12 +62,6 @@
    <LINKPOINT x="4545" y="1935">
    </LINKPOINT>
    </LINK>
-   <LINK srcnodeid="0" srcpinname="contactRotation" dstnodeid="1" dstpinname="Rotate">
-   </LINK>
-   <LINK srcnodeid="0" srcpinname="contactCoordsXY" dstnodeid="2" dstpinname="XY">
-   </LINK>
-   <LINK srcnodeid="0" srcpinname="contactSizeXY" dstnodeid="3" dstpinname="XY">
-   </LINK>
    <NODE systemname="Quad (DX9)" nodename="Quad (DX9)" componentmode="Hidden" id="4">
    <BOUNDS type="Node" left="1260" top="3030" width="100" height="100">
    </BOUNDS>
@@ -94,7 +72,7 @@
    </NODE>
    <LINK srcnodeid="1" srcpinname="Transform Out" dstnodeid="4" dstpinname="Transform">
    </LINK>
-   <NODE systemname="Renderer (EX9)" nodename="Renderer (EX9)" componentmode="InAWindow" id="5">
+   <NODE systemname="RENDERER (EX9)" nodename="Renderer (EX9)" componentmode="InAWindow" id="5">
    <BOUNDS type="Node" left="1260" top="3495" width="100" height="100">
    </BOUNDS>
    <BOUNDS type="Box" left="1260" top="3495" width="2400" height="1800">
@@ -103,7 +81,33 @@
    </BOUNDS>
    <PIN pinname="Layers" visible="1">
    </PIN>
+   <PIN pinname="Fullscreen Depthbuffer Format" slicecount="1" values="NONE">
+   </PIN>
+   <PIN pinname="Fullscreen Dimensions" slicecount="1" values="|1024 x 768|">
+   </PIN>
+   <PIN pinname="Fullscreen Antialiasing Quality Level" slicecount="1" values="NONE">
+   </PIN>
+   <PIN pinname="Windowed Depthbuffer Format" slicecount="1" values="NONE">
+   </PIN>
+   <PIN pinname="Windowed Antialiasing Quality Level" slicecount="1" values="NONE">
+   </PIN>
    </NODE>
    <LINK srcnodeid="4" srcpinname="Layer" dstnodeid="5" dstpinname="Layers">
+   </LINK>
+   <NODE systemname="SurfaceInput (Input 0.2)" filename="bin\x86\Release\SurfaceInput.dll" nodename="SurfaceInput (Input 0.2)" componentmode="Hidden" id="6">
+   <BOUNDS type="Node" left="480" top="570" width="4890" height="270">
+   </BOUNDS>
+   <PIN pinname="contactCoordsXY" visible="1">
+   </PIN>
+   <PIN pinname="contactSizeXY" visible="1">
+   </PIN>
+   <PIN pinname="contactRotation" visible="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="6" srcpinname="contactCoordsXY" dstnodeid="2" dstpinname="XY">
+   </LINK>
+   <LINK srcnodeid="6" srcpinname="contactSizeXY" dstnodeid="3" dstpinname="XY">
+   </LINK>
+   <LINK srcnodeid="6" srcpinname="contactRotation" dstnodeid="1" dstpinname="Rotate">
    </LINK>
    </PATCH>
